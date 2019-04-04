@@ -23,8 +23,6 @@
 
 > *Disclaimer: kcptun maintains a single website — [github.com/xtaci/kcptun](https://github.com/xtaci/kcptun). Any websites other than [github.com/xtaci/kcptun](https://github.com/xtaci/kcptun) are not endorsed by xtaci.*
 
-> *KCP discussion QQ group: 364933586, KCP integration, tuning, network transmission and related technical discussions.*
-
 ### QuickStart
 
 Increase the number of open files on your server, as:
@@ -34,25 +32,26 @@ Increase the number of open files on your server, as:
 Suggested `sysctl.conf` parameters for better handling of UDP packets:
 
 ```
-net.core.rmem_max=26214400
+net.core.rmem_max=26214400 // BDP - bandwidth delay product
 net.core.rmem_default=26214400
 net.core.wmem_max=26214400
 net.core.wmem_default=26214400
-net.core.netdev_max_backlog=2048
+net.core.netdev_max_backlog=2048 // proportional to -rcvwnd
 ```
 
 You can also increase the per-socket buffer by adding parameter(default 4MB):
 ```
 -sockbuf 16777217
 ```
+for **slow processors**, increasing this buffer is **CRITICAL** to receive packets properly.
 increasing this would work for most of the old model CPUs.
 
 
 Download a corresponding one from precompiled [Releases](https://github.com/xtaci/kcptun/releases).
 
 ```
-KCP Client: ./client_darwin_amd64 -r "KCP_SERVER_IP:4000" -l ":8388" -mode fast2
-KCP Server: ./server_linux_amd64 -t "TARGET_IP:8388" -l ":4000" -mode fast2
+KCP Client: ./client_darwin_amd64 -r "KCP_SERVER_IP:4000" -l ":8388" -mode fast3 -nocomp -autoexpire 900 -sockbuf 16777217 -dscp 46
+KCP Server: ./server_linux_amd64 -t "TARGET_IP:8388" -l ":4000" -mode fast3 -nocomp -sockbuf 16777217 -dscp 46
 ```
 The above commands will establish port forwarding channel for 8388/tcp as:
 
@@ -72,7 +71,11 @@ All precompiled releases are genereated from `build-release.sh` script.
 
 ### Performance
 
-<img src="fast.png" alt="fast.com" height="256px" />       
+<img src="fast.png" alt="fast.com" height="256px" />    
+
+<img src="bw.png" alt="bandwidth usage graph" height="256px" />       
+
+> Practical bandwidth graph with parameters:  -mode fast3 -ds 10 -ps 3
 
 ### Basic Tuning Guide
 
@@ -95,7 +98,10 @@ All precompiled releases are genereated from `build-release.sh` script.
 
 > *fast3 > fast2 > fast > normal > default*
 
+#### HOLB
 
+Since streams are multiplexed into a single physical channel, head of line blocking may appear under certain circumstances, by
+increasing `-smuxbuf` to a larger value (default 4MB) may mitigate this problem, obviously this will costs more memory.
 
 ### Expert Tuning Guide
 
@@ -353,3 +359,5 @@ via Ethereum(ETH): Address: 0x2e4b43ab3d0983da282592571eef61ae5e60f726 , Or scan
 via WeChat
 
 <img src="wechat_donate.jpg" alt="kcptun" height="120px" /> 
+
+（注意：我没有任何社交网站的账号，请小心骗子。）
