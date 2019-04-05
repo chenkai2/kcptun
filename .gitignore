@@ -25,3 +25,7 @@ _testmain.go
 client/client
 server/server
 go.sum
+
+build/client_*
+build/server_*
+build/kcptun-*
