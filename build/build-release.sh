@@ -24,7 +24,7 @@ ARCHS=(amd64 386)
 
 # Get go
 go get -u github.com/chenkai2/kcptun
-go get -u ./...
+go get -u ../...
 
 for os in ${OSES[@]}; do
 	for arch in ${ARCHS[@]}; do
